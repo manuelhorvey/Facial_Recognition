@@ -24,6 +24,9 @@ def stop_session():
     global should_continue
     # Clear the event to signal the worker thread to stop
     should_continue.clear()
+    # Close the GUI window
+    root.destroy()
+
 
 def register_user(images_folder):
     # Capture and save an image of the user

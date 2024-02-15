@@ -149,20 +149,23 @@ def capture_and_save_image(images_folder):
         # Wait for the user to press the capture button (spacebar)
         key = cv2.waitKey(1)
         if key == ord(' '):  # Spacebar key
+            # Prompt the user to enter the desired image name
+            image_name = input("Enter the name for the image (without extension): ")
+
+            # Generate the image filename with the provided name
+            image_filename = f"{image_name}.jpg"
+
+            # Save the captured image to the images folder
+            image_path = os.path.join(images_folder, image_filename)
+            cv2.imwrite(image_path, frame)
+
+            print("Image saved successfully:", image_path)
             break
-
-    # Generate a unique filename for the captured image
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-    image_filename = f"user_image_{timestamp}.jpg"
-
-    # Save the captured image to the images folder
-    image_path = os.path.join(images_folder, image_filename)
-    cv2.imwrite(image_path, frame)
-
-    print("Image saved successfully:", image_path)
 
     # Release the VideoCapture object and close any open windows
     video_capture.release()
     cv2.destroyAllWindows()
 
+# Example usage:
 images_folder = "./facial_recognition/faces"  # Path to the folder where images will be saved
+
