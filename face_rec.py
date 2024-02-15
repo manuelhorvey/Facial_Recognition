@@ -7,7 +7,44 @@ from time import sleep
 import datetime
 
 
+"""def get_user_data():
+#import pymysql
+    #Establish a connection a database
+    conn = pymysql.connect(
+        dbname="",
+        user="",
+        password="",
+        host=""
+    )
+    #create a cursor connection
+    cur = conn.cursor()
+
+    #Execuute a query to fetch the usr data
+    cur.execute("select name, image_path from users")
+
+    #Fetch all the rows
+    rows = cur.fetchall()
+
+    return rows
+"""
+
 def get_encoded_faces():
+    """
+    looks through the faces folder and encodes all
+    the faces
+
+    :return: dict of (name, image encoded)
+    """
+    """    #fetch the user data
+    users = get_user_data()
+
+    for user in users:
+        name, image_path =user
+        face = fr.load_image_file(image_path)
+        encoding = fr.face_encodings(face)[0]
+        encoded[name] = encoding
+    return encoded"""
+
     encoded = {} 
 
     for dirpath, dnames, fnames in os.walk("./facial_recognition/faces"):
@@ -22,9 +59,11 @@ def get_encoded_faces():
 
 
 def unknown_image_encoded(img):
+    """Encodes a file given the file name """
     face = fr.load_image_file("/facial_recognition/faces/" + img)
     encoding = fr.face_encodings(face)[0]  
     return encoding
+
 
 
 def classify_face_live(should_continue):
@@ -84,40 +123,51 @@ def classify_face_live(should_continue):
 
 
 def capture_and_save_image(images_folder):
+
+    # Create a VideoCapture object to capture images from the camera
     video_capture = cv2.VideoCapture(0)
 
+    # Check if the camera is opened successfully
     if not video_capture.isOpened():
         print("Error: Could not open video capture.")
         return
 
+    # Continuously display the live camera feed until the capture button is pressed
     while True:
+        # Capture a frame from the camera
         ret, frame = video_capture.read()
 
+        # Check if image capture was successful
         if not ret:
             print("Error: Could not capture image.")
             break
 
+        # Display the captured frame
         cv2.imshow("Register a User", frame)
 
+        # Wait for the user to press the capture button (spacebar)
         key = cv2.waitKey(1)
-        if key == ord(' '):
+        if key == ord(' '):  # Spacebar key
             break
 
-    image_filename = "user_image.jpg"
+    # Generate a unique filename for the captured image
+    image_filename = "user_image.jpg"  # You can use a more sophisticated method to generate unique filenames
+
+    # Save the captured image to the images folder
     image_path = os.path.join(images_folder, image_filename)
     cv2.imwrite(image_path, frame)
 
     print("Image saved successfully:", image_path)
 
+    # Release the VideoCapture object and close any open windows
     video_capture.release()
     cv2.destroyAllWindows()
 
-
+images_folder = "./facial_recognition/faces"  
 def main():
-    should_continue = threading.Event()
-    should_continue.set()
-    classify_face_live(should_continue)
+    capture_and_save_image(images_folder)
 
 if __name__ == "__main__":
-    import threading
     main()
+
+

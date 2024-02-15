@@ -7,31 +7,38 @@ import os
 import numpy as np 
 from time import sleep
 import datetime
-from face_rec import classify_face_live,capture_and_save_image
+from face_rec import classify_face_live, capture_and_save_image
 
-# Create an Event object
-should_continue = threading.Event()
+
+# Global variables
+should_continue = None
+video_capture = None
 
 def start_session():
     global should_continue
-    global video_capture
-    # Set the event to signal the worker thread to continue running
-    should_continue.set()
-    video_capture = cv2.VideoCapture(0)
+    should_continue = threading.Event()
+    should_continue.set()  # Set the event to indicate the session has started
     threading.Thread(target=classify_face_live, args=(should_continue,)).start()
 
 def stop_session():
     global should_continue
-    # Clear the event to signal the worker thread to stop
-    should_continue.clear()
+    if should_continue:
+        should_continue.clear()  # Clear the event to stop the recognition process
 
 def register_user(images_folder):
-    # Capture and save an image of the user
-    capture_and_save_image(images_folder)
+    capture_and_save_image(images_folder)  # Capture and save an image of the user
+
+def on_closing():
+    global video_capture
+    stop_session()
+    if video_capture:
+        video_capture.release()  # Release the video capture resource if it exists
+    root.destroy()
 
 # Create the main window
 root = tk.Tk()
 root.title("Face Recognition System")
+root.protocol("WM_DELETE_WINDOW", on_closing)
 
 # Create a canvas for the video frame
 canvas = tk.Canvas(root, width=700, height=500)
@@ -54,12 +61,8 @@ stop_button = tk.Button(button_frame, text="Stop", command=stop_session, width=2
 stop_button.grid(row=0, column=1, padx=5)
 
 # Create a 'Register a User' button
-register_button = tk.Button(root, text="Register User", command=lambda: register_user("/facial_recognition/faces/"), width=20)
+register_button = tk.Button(root, text="Register User", command=lambda: register_user("./facial_recognition/faces/"), width=20)
 register_button.pack(pady=10)
-
 
 # Run the main loop
 root.mainloop()
-
-# Release the video capture when the window is closed
-video_capture.release()
