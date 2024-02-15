@@ -28,8 +28,8 @@ import time
 
     return rows
 """
-
 def get_encoded_faces():
+
     """
     looks through the faces folder and encodes all
     the faces
@@ -52,9 +52,12 @@ def get_encoded_faces():
     for dirpath, dnames, fnames in os.walk("./facial_recognition/faces"):
         for f in fnames:
             if f.endswith(".jpg") or f.endswith(".png") or f.endswith(".jpeg"):
-                face = fr.load_image_file(os.path.join(dirpath, f))  
-                encoding = fr.face_encodings(face)[0]  
-                encoded[f.split(".")[0]] = encoding  
+                face = fr.load_image_file(os.path.join(dirpath, f))
+                face_encodings = fr.face_encodings(face)
+                if len(face_encodings) > 0:
+                    encoding = face_encodings[0]
+                    encoded[f.split(".")[0]] = encoding
+
     return encoded
 
 def unknown_image_encoded(img):
@@ -162,6 +165,4 @@ def capture_and_save_image(images_folder):
     video_capture.release()
     cv2.destroyAllWindows()
 
-# Example usage:
 images_folder = "./facial_recognition/faces"  # Path to the folder where images will be saved
-capture_and_save_image(images_folder)

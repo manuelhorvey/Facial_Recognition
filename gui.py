@@ -19,7 +19,6 @@ def start_session():
     should_continue.set()
     video_capture = cv2.VideoCapture(0)
     threading.Thread(target=classify_face_live, args=(should_continue,)).start()
-    
 
 def stop_session():
     global should_continue
