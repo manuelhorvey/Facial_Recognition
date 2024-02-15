@@ -9,36 +9,31 @@ from time import sleep
 import datetime
 from face_rec import classify_face_live, capture_and_save_image
 
-
-# Global variables
-should_continue = None
-video_capture = None
+# Create an Event object
+should_continue = threading.Event()
 
 def start_session():
     global should_continue
-    should_continue = threading.Event()
-    should_continue.set()  # Set the event to indicate the session has started
+    global video_capture
+    # Set the event to signal the worker thread to continue running
+    should_continue.set()
+    video_capture = cv2.VideoCapture(0)
     threading.Thread(target=classify_face_live, args=(should_continue,)).start()
+    
 
 def stop_session():
     global should_continue
-    if should_continue:
-        should_continue.clear()  # Clear the event to stop the recognition process
+    # Clear the event to signal the worker thread to stop
+    should_continue.clear()
 
 def register_user(images_folder):
-    capture_and_save_image(images_folder)  # Capture and save an image of the user
-
-def on_closing():
-    global video_capture
-    stop_session()
-    if video_capture:
-        video_capture.release()  # Release the video capture resource if it exists
-    root.destroy()
+    # Capture and save an image of the user
+    capture_and_save_image(images_folder)
 
 # Create the main window
 root = tk.Tk()
 root.title("Face Recognition System")
-root.protocol("WM_DELETE_WINDOW", on_closing)
+root.protocol("WM_DELETE_WINDOW")
 
 # Create a canvas for the video frame
 canvas = tk.Canvas(root, width=700, height=500)

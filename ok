@@ -1,0 +1,30 @@
+[33mcommit d866f4f92726c8cbee4cda0c6ba9cfcf866820e8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: manuelhorvey <ameymanuel@gmail.com>
+Date:   Thu Feb 15 11:25:21 2024 +0000
+
+    Fixed a bug on the gui
+
+[33mcommit dada8e3b21ed4e454aa07bf3f54dc49aa9a4f573[m
+Merge: 4282419 93777b9
+Author: manuelhorvey <ameymanuel@gmail.com>
+Date:   Thu Feb 15 03:03:31 2024 +0000
+
+    Merge branch 'main' of https://github.com/manuelhorvey/Facial_Recognition
+
+[33mcommit 428241970b2e7252c90d2303c7ea6d7266b2e14c[m
+Author: manuelhorvey <ameymanuel@gmail.com>
+Date:   Thu Feb 15 02:57:52 2024 +0000
+
+    Added a GUI Interface
+
+[33mcommit 93777b99dcfc2f23ec85fa3ae1a34f9dd5586d63[m
+Author: Emmanuel Amey <104096903+manuelhorvey@users.noreply.github.com>
+Date:   Sat Feb 3 12:29:10 2024 +0000
+
+    Create README.md
+
+[33mcommit 9eb2a8e03cd272871b24b7e4b4dcd99a5f6f0ce1[m
+Author: manuelhorvey <ameymanuel@gmail.com>
+Date:   Sat Feb 3 12:19:58 2024 +0000
+
+    Initial Commit

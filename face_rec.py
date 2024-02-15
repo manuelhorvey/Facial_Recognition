@@ -5,6 +5,7 @@ import numpy as np
 import face_recognition 
 from time import sleep
 import datetime
+import time
 
 
 """def get_user_data():
@@ -45,18 +46,16 @@ def get_encoded_faces():
         encoded[name] = encoding
     return encoded"""
 
-    encoded = {} 
+    
+    encoded = {}
 
     for dirpath, dnames, fnames in os.walk("./facial_recognition/faces"):
         for f in fnames:
             if f.endswith(".jpg") or f.endswith(".png") or f.endswith(".jpeg"):
                 face = fr.load_image_file(os.path.join(dirpath, f))  
-                face_encodings = fr.face_encodings(face)
-                if face_encodings:  # Check if any faces were found
-                    encoding = face_encodings[0]  # Take the first face encoding
-                    encoded[f.split(".")[0]] = encoding  
+                encoding = fr.face_encodings(face)[0]  
+                encoded[f.split(".")[0]] = encoding  
     return encoded
-
 
 def unknown_image_encoded(img):
     """Encodes a file given the file name """
@@ -123,7 +122,6 @@ def classify_face_live(should_continue):
 
 
 def capture_and_save_image(images_folder):
-
     # Create a VideoCapture object to capture images from the camera
     video_capture = cv2.VideoCapture(0)
 
@@ -143,7 +141,7 @@ def capture_and_save_image(images_folder):
             break
 
         # Display the captured frame
-        cv2.imshow("Register a User", frame)
+        cv2.imshow("", frame)
 
         # Wait for the user to press the capture button (spacebar)
         key = cv2.waitKey(1)
@@ -151,7 +149,8 @@ def capture_and_save_image(images_folder):
             break
 
     # Generate a unique filename for the captured image
-    image_filename = "user_image.jpg"  # You can use a more sophisticated method to generate unique filenames
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    image_filename = f"user_image_{timestamp}.jpg"
 
     # Save the captured image to the images folder
     image_path = os.path.join(images_folder, image_filename)
@@ -163,11 +162,6 @@ def capture_and_save_image(images_folder):
     video_capture.release()
     cv2.destroyAllWindows()
 
-images_folder = "./facial_recognition/faces"  
-def main():
-    capture_and_save_image(images_folder)
-
-if __name__ == "__main__":
-    main()
-
-
+# Example usage:
+images_folder = "./facial_recognition/faces"  # Path to the folder where images will be saved
+capture_and_save_image(images_folder)
