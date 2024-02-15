@@ -7,96 +7,62 @@ from time import sleep
 import datetime
 
 
-"""def get_user_data():
-#import pymysql
-    #Establish a connection a database
-    conn = pymysql.connect(
-        dbname="",
-        user="",
-        password="",
-        host=""
-    )
-    #create a cursor connection
-    cur = conn.cursor()
-
-    #Execuute a query to fetch the usr data
-    cur.execute("select name, image_path from users")
-
-    #Fetch all the rows
-    rows = cur.fetchall()
-
-    return rows
-"""
-
 def get_encoded_faces():
-    """
-    looks through the faces folder and encodes all
-    the faces
-
-    :return: dict of (name, image encoded)
-    """
-    """    #fetch the user data
-    users = get_user_data()
-
-    for user in users:
-        name, image_path =user
-        face = fr.load_image_file(image_path)
-        encoding = fr.face_encodings(face)[0]
-        encoded[name] = encoding
-    return encoded"""
-
-    
-    encoded = {}
+    encoded = {} 
 
     for dirpath, dnames, fnames in os.walk("./facial_recognition/faces"):
         for f in fnames:
             if f.endswith(".jpg") or f.endswith(".png") or f.endswith(".jpeg"):
                 face = fr.load_image_file(os.path.join(dirpath, f))  
-                encoding = fr.face_encodings(face)[0]  
-                encoded[f.split(".")[0]] = encoding  
+                face_encodings = fr.face_encodings(face)
+                if face_encodings:  # Check if any faces were found
+                    encoding = face_encodings[0]  # Take the first face encoding
+                    encoded[f.split(".")[0]] = encoding  
     return encoded
 
+
 def unknown_image_encoded(img):
-    """Encodes a file given the file name """
     face = fr.load_image_file("/facial_recognition/faces/" + img)
     encoding = fr.face_encodings(face)[0]  
     return encoding
 
 
-
-def classify_face_live():
-    """
-    Captures video from the webcam and performs face recognition in real-time.
-    Writes the names of recognized people to a file only once.
-    """
+def classify_face_live(should_continue):
+    print("Starting face recognition...")
     faces = get_encoded_faces()
-    faces_encoded = list(faces.values())  
-    known_face_names = list(faces.keys())  
+    faces_encoded = list(faces.values())
+    known_face_names = list(faces.keys())
 
     video_capture = cv2.VideoCapture(0)
 
-    # Create a set to store the names of recognized people
+    if not video_capture.isOpened():
+        print("Error: Could not open video capture.")
+        return
+
     recognized_names = set()
 
-    while True:
+    while should_continue.is_set():
         ret, frame = video_capture.read()
 
+        if not ret:
+            print("Error: Could not read frame.")
+            break
+
         face_locations = face_recognition.face_locations(frame)
-        unknown_face_encodings = face_recognition.face_encodings(frame, face_locations) 
+        unknown_face_encodings = face_recognition.face_encodings(frame, face_locations)
 
         face_names = []
-        for face_encoding in unknown_face_encodings: 
+        for face_encoding in unknown_face_encodings:
             matches = face_recognition.compare_faces(faces_encoded, face_encoding)
             name = "Unknown"
 
-            face_distances = face_recognition.face_distance(faces_encoded, face_encoding)  
+            face_distances = face_recognition.face_distance(faces_encoded, face_encoding)
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
 
             face_names.append(name)
 
-            # Write the name and current time to a file only if the name has not been recognized before
             if name not in recognized_names:
                 with open('attendance.txt', 'a') as f:
                     f.write(f'{name}, {datetime.datetime.now()}\n')
@@ -108,14 +74,50 @@ def classify_face_live():
             font = cv2.FONT_HERSHEY_DUPLEX
             cv2.putText(frame, name, (left -20, bottom + 15), font, 1.0, (255, 255, 255), 2)
 
-        cv2.imshow('Video', frame)
-
+        cv2.imshow('Face Recognition', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     video_capture.release()
-    cv2.destroyAllWindows()  
+    cv2.destroyAllWindows()
+    print("Face recognition stopped.")
 
-classify_face_live()
+
+def capture_and_save_image(images_folder):
+    video_capture = cv2.VideoCapture(0)
+
+    if not video_capture.isOpened():
+        print("Error: Could not open video capture.")
+        return
+
+    while True:
+        ret, frame = video_capture.read()
+
+        if not ret:
+            print("Error: Could not capture image.")
+            break
+
+        cv2.imshow("Register a User", frame)
+
+        key = cv2.waitKey(1)
+        if key == ord(' '):
+            break
+
+    image_filename = "user_image.jpg"
+    image_path = os.path.join(images_folder, image_filename)
+    cv2.imwrite(image_path, frame)
+
+    print("Image saved successfully:", image_path)
+
+    video_capture.release()
+    cv2.destroyAllWindows()
 
 
+def main():
+    should_continue = threading.Event()
+    should_continue.set()
+    classify_face_live(should_continue)
+
+if __name__ == "__main__":
+    import threading
+    main()
