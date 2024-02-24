@@ -69,6 +69,8 @@ def unknown_image_encoded(img):
 
 
 def classify_face_live(should_continue):
+    TOLERANCE = 0.6  # You can adjust this value based on your requirement
+
     print("Starting face recognition...")
     faces = get_encoded_faces()
     faces_encoded = list(faces.values())
@@ -89,19 +91,18 @@ def classify_face_live(should_continue):
             print("Error: Could not read frame.")
             break
 
-        face_locations = face_recognition.face_locations(frame)
-        unknown_face_encodings = face_recognition.face_encodings(frame, face_locations)
+        face_locations = fr.face_locations(frame)
+        unknown_face_encodings = fr.face_encodings(frame, face_locations)
 
         face_names = []
         for face_encoding in unknown_face_encodings:
-            matches = face_recognition.compare_faces(faces_encoded, face_encoding)
-            name = "Unknown"
-
-            face_distances = face_recognition.face_distance(faces_encoded, face_encoding)
+            matches = fr.compare_faces(faces_encoded, face_encoding)
+            face_distances = fr.face_distance(faces_encoded, face_encoding)
             best_match_index = np.argmin(face_distances)
-            if matches[best_match_index]:
+            if matches[best_match_index] and face_distances[best_match_index] <= TOLERANCE:
                 name = known_face_names[best_match_index]
-
+            else:
+                name = "Unknown"
             face_names.append(name)
 
             if name not in recognized_names:
